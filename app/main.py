@@ -1,10 +1,14 @@
 
 from fastapi import FastAPI
 
+from app.core.config import settings
+
+
+# initialise l'api avec les paramètres centralisés
 app = FastAPI(
-    title="Couture Manager API",
-    description="API de gestion d'un atelier de couture.",
-    version="1.0.0",
+    title=settings.app_name,
+    description=settings.app_description,
+    version=settings.app_version,
 )
 
 
