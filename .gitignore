@@ -1,0 +1,28 @@
+# environnement virtuel
+.venv/
+venv/
+
+# variables d'environnement et secrets
+.env
+.env.*
+!.env.example
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# tests et couverture
+.pytest_cache/
+.coverage
+htmlcov/
+
+# éditeurs
+.vscode/
+.idea/
+
+# système
+.DS_Store
+Thumbs.db
