@@ -2,7 +2,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
+
 from app.models.utilisateur import Utilisateur
 from app.schemas.utilisateur import UtilisateurCreate
 
@@ -43,5 +44,31 @@ def creer_utilisateur(
         raise EmailDejaUtiliseError(
             "Cette adresse e-mail est déjà utilisée."
         ) from erreur
+
+    return utilisateur
+
+
+def authentifier_utilisateur(
+    db: Session,
+    email: str,
+    mot_de_passe: str,
+) -> Utilisateur | None:
+    """Vérifie les identifiants d'un utilisateur."""
+
+    utilisateur = db.scalar(
+        select(Utilisateur).where(Utilisateur.email == email)
+    )
+
+    if utilisateur is None:
+        return None
+
+    if not utilisateur.actif:
+        return None
+
+    if not verify_password(
+        mot_de_passe,
+        utilisateur.mot_de_passe_hash,
+    ):
+        return None
 
     return utilisateur

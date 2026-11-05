@@ -9,6 +9,10 @@ class Settings(BaseSettings):
     app_description: str = "API de gestion d'un atelier de couture."
     app_version: str = "1.0.0"
     environment: str = "development"
+        # paramètres de sécurité JWT
+    jwt_secret_key: str
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
 
     # adresse de connexion à postgreSQL
     database_url: str
