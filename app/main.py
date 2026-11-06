@@ -13,6 +13,8 @@ from app.routers import mesure
 
 from app.routers import utilisateur
 
+from app.routers import type_vetement
+
 # initialise l'API avec les paramètres centralisés
 app = FastAPI(
     title=settings.app_name,
@@ -24,6 +26,7 @@ app.include_router(auth_router)
 app.include_router(utilisateur.router)
 app.include_router(client.router)
 app.include_router(mesure.router)
+app.include_router(type_vetement.router)
 
 @app.get("/health")
 def verifier_etat_api():
