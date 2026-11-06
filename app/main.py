@@ -11,6 +11,8 @@ from app.routers import client
 
 from app.routers import mesure
 
+from app.routers import utilisateur
+
 # initialise l'API avec les paramètres centralisés
 app = FastAPI(
     title=settings.app_name,
@@ -19,6 +21,7 @@ app = FastAPI(
 )
 
 app.include_router(auth_router)
+app.include_router(utilisateur.router)
 app.include_router(client.router)
 app.include_router(mesure.router)
 

@@ -49,3 +49,11 @@ class UtilisateurRead(BaseModel):
 
     # permet de lire un modèle SQLAlchemy
     model_config = ConfigDict(from_attributes=True)
+
+class UtilisateurListResponse(BaseModel):
+    """Résultat paginé de la liste des utilisateurs."""
+
+    items: list[UtilisateurRead]
+    total: int
+    limit: int
+    offset: int
