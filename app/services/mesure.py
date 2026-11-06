@@ -1,7 +1,9 @@
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.client import Client
+from app.models.commande import Commande
 from app.models.mesure import Mesure
 from app.schemas.mesure import CHAMPS_MESURES, MesureCreate, MesureUpdate
 
@@ -15,6 +17,10 @@ class MesureIntrouvableError(Exception):
 
 
 class MesureInvalideError(Exception):
+    pass
+
+
+class MesureLieeACommandeError(Exception):
     pass
 
 
@@ -123,6 +129,17 @@ def modifier_mesure(
 
 def supprimer_mesure(db: Session, mesure_id: int) -> None:
     mesure = obtenir_mesure(db, mesure_id)
+
+    commande_liee = db.scalar(
+        select(Commande.id)
+        .where(Commande.mesure_id == mesure_id)
+        .limit(1)
+    )
+
+    if commande_liee is not None:
+        raise MesureLieeACommandeError(
+            "Cette mesure est associée à une commande et ne peut pas être supprimée."
+        )
 
     # le contrôle des commandes liées sera ajouté avec le modèle Commande
 

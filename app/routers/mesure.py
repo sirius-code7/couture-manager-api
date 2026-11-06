@@ -18,6 +18,19 @@ from app.services.mesure import (
     supprimer_mesure,
 )
 
+from app.services.mesure import (
+    ClientIntrouvableError,
+    MesureIntrouvableError,
+    MesureInvalideError,
+    MesureLieeACommandeError,
+    creer_mesure,
+    lister_mesures_client,
+    modifier_mesure,
+    obtenir_derniere_mesure,
+    obtenir_mesure,
+    supprimer_mesure,
+)
+
 router = APIRouter(
     tags=["Mesures"],
     dependencies=[Depends(get_current_user)],
@@ -128,6 +141,11 @@ def modifier_une_mesure(
     "/mesures/{mesure_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
+
+@router.delete(
+    "/mesures/{mesure_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 def supprimer_une_mesure(
     mesure_id: int,
     db: Session = Depends(get_db),
@@ -140,4 +158,9 @@ def supprimer_une_mesure(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Mesure introuvable.",
+        )
+    except MesureLieeACommandeError as erreur:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(erreur),
         )
