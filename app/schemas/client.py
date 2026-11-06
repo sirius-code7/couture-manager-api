@@ -105,3 +105,10 @@ class ClientRead(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ClientListResponse(BaseModel):
+    items: list[ClientRead]
+    total: int
+    limit: int
+    offset: int
