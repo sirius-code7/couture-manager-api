@@ -1,3 +1,4 @@
+from app.models.utilisateur import Utilisateur
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -16,11 +17,14 @@ from app.services.client import (
     lister_clients,
     modifier_client,
     obtenir_client_par_id,
+    supprimer_client,
 )
 
 from fastapi import Query
 
 from app.schemas.client import ClientCreate, ClientListResponse, ClientRead
+
+from app.dependencies.permissions import exiger_roles
 
 router = APIRouter(
     prefix="/clients",
@@ -107,3 +111,20 @@ def modifier_un_client(
         )
 
     return client
+
+@router.delete(
+    "/{client_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def supprimer_un_client(
+    client_id: int,
+    db: Session = Depends(get_db),
+    utilisateur: Utilisateur = Depends(exiger_roles("admin")),
+):
+    client_supprime = supprimer_client(db, client_id)
+
+    if not client_supprime:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client introuvable.",
+        )

@@ -114,3 +114,18 @@ def modifier_client(
 
     return client
 
+def supprimer_client(
+    db: Session,
+    client_id: int,
+) -> bool:
+    """Supprime un client existant."""
+
+    client = db.get(Client, client_id)
+
+    if client is None:
+        return False
+
+    db.delete(client)
+    db.commit()
+
+    return True
