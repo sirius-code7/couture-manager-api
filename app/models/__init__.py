@@ -3,6 +3,7 @@ from app.models.utilisateur import Utilisateur
 from app.models.mesure import Mesure
 from app.models.type_vetement import TypeVetement
 from app.models.commande import Commande, LigneCommande, HistoriqueStatut
+from app.models.paiement import Paiement
 
 
-__all__ = ["Client", "Utilisateur", "Mesure", "TypeVetement", "Commande", "LigneCommande", "HistoriqueStatut"]
+__all__ = ["Client", "Utilisateur", "Mesure", "TypeVetement", "Commande", "LigneCommande", "HistoriqueStatut", "Paiement"]

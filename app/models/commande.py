@@ -14,6 +14,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
 
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 
 STATUTS_COMMANDE = (
     "en_attente",
@@ -117,6 +119,11 @@ class Commande(Base):
         onupdate=func.now(),
         nullable=False,
     )
+
+    paiements: Mapped[list["Paiement"]] = relationship( # type: ignore
+    back_populates="commande",
+    passive_deletes="all",
+)
 
 
 class LigneCommande(Base):
