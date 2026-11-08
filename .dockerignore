@@ -1,0 +1,14 @@
+﻿.venv/
+venv/
+.env
+.env.*
+!.env.example
+.git/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.coverage
+htmlcov/
+.vscode/
+.idea/
