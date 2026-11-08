@@ -10,11 +10,9 @@ from sqlalchemy import (
     Text,
     func,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
-
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 STATUTS_COMMANDE = (

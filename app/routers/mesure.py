@@ -10,18 +10,6 @@ from app.services.mesure import (
     ClientIntrouvableError,
     MesureIntrouvableError,
     MesureInvalideError,
-    creer_mesure,
-    lister_mesures_client,
-    modifier_mesure,
-    obtenir_derniere_mesure,
-    obtenir_mesure,
-    supprimer_mesure,
-)
-
-from app.services.mesure import (
-    ClientIntrouvableError,
-    MesureIntrouvableError,
-    MesureInvalideError,
     MesureLieeACommandeError,
     creer_mesure,
     lister_mesures_client,
@@ -136,11 +124,6 @@ def modifier_une_mesure(
             detail=str(erreur),
         )
 
-
-@router.delete(
-    "/mesures/{mesure_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
 
 @router.delete(
     "/mesures/{mesure_id}",
