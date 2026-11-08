@@ -1,4 +1,4 @@
-from typing import Literal
+﻿from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -173,6 +173,7 @@ def modifier_une_commande(
         return modifier_commande(db, commande_id, donnees)
     except (
         CommandeIntrouvableError,
+        DonneesCommandeInvalidesError,
         CommandeInvalideError,
     ) as erreur:
         traiter_erreur_commande(erreur)
@@ -205,6 +206,7 @@ def modifier_le_statut_commande(
         )
     except (
         CommandeIntrouvableError,
+        DonneesCommandeInvalidesError,
         CommandeInvalideError,
     ) as erreur:
         traiter_erreur_commande(erreur)
