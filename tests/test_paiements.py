@@ -36,13 +36,13 @@ def creer_commande(
     donnees["telephone"] = telephone
 
     reponse_client = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees,
         headers=entetes(token),
     )
 
     reponse_prestation = client.post(
-        "/catalogue",
+        "/api/v1/catalogue",
         json=donnees_prestation(nom_prestation),
         headers=entetes(token),
     )
@@ -51,7 +51,7 @@ def creer_commande(
     assert reponse_prestation.status_code == 201
 
     reponse_commande = client.post(
-        "/commandes",
+        "/api/v1/commandes",
         json={
             "client_id": reponse_client.json()["id"],
             "remise": 0,
@@ -96,7 +96,7 @@ def creer_paiement(
     )
 
     response = client.post(
-        f"/commandes/{commande['id']}/paiements",
+        f"/api/v1/commandes/{commande['id']}/paiements",
         json=donnees_paiement(montant),
         headers=entetes(token),
     )
@@ -112,7 +112,7 @@ def test_enregistrer_paiement_admin(client, utilisateurs_test):
     commande = creer_commande(client, token)
 
     response = client.post(
-        f"/commandes/{commande['id']}/paiements",
+        f"/api/v1/commandes/{commande['id']}/paiements",
         json=donnees_paiement(),
         headers=entetes(token),
     )
@@ -133,7 +133,7 @@ def test_enregistrer_paiement_accueil(client, utilisateurs_test):
     )
 
     response = client.post(
-        f"/commandes/{commande['id']}/paiements",
+        f"/api/v1/commandes/{commande['id']}/paiements",
         json=donnees_paiement(),
         headers=entetes(utilisateurs_test["accueil"]),
     )
@@ -151,7 +151,7 @@ def test_enregistrer_paiement_interdit_tailleur(
     )
 
     response = client.post(
-        f"/commandes/{commande['id']}/paiements",
+        f"/api/v1/commandes/{commande['id']}/paiements",
         json=donnees_paiement(),
         headers=entetes(utilisateurs_test["tailleur"]),
     )
@@ -169,7 +169,7 @@ def test_enregistrer_paiement_sans_authentification(
     )
 
     response = client.post(
-        f"/commandes/{commande['id']}/paiements",
+        f"/api/v1/commandes/{commande['id']}/paiements",
         json=donnees_paiement(),
     )
 
@@ -181,7 +181,7 @@ def test_enregistrer_paiement_commande_inexistante(
     utilisateurs_test,
 ):
     response = client.post(
-        "/commandes/999999/paiements",
+        "/api/v1/commandes/999999/paiements",
         json=donnees_paiement(),
         headers=entetes(utilisateurs_test["admin"]),
     )
@@ -197,7 +197,7 @@ def test_enregistrer_paiement_superieur_au_solde(
     commande = creer_commande(client, token)
 
     response = client.post(
-        f"/commandes/{commande['id']}/paiements",
+        f"/api/v1/commandes/{commande['id']}/paiements",
         json=donnees_paiement(100000),
         headers=entetes(token),
     )
@@ -213,7 +213,7 @@ def test_enregistrer_paiement_montant_restant_exact(
     commande = creer_commande(client, token)
 
     response = client.post(
-        f"/commandes/{commande['id']}/paiements",
+        f"/api/v1/commandes/{commande['id']}/paiements",
         json=donnees_paiement(70000),
         headers=entetes(token),
     )
@@ -250,7 +250,7 @@ def test_enregistrer_paiement_donnees_invalides(
 
     for donnees in donnees_invalides:
         response = client.post(
-            f"/commandes/{commande['id']}/paiements",
+            f"/api/v1/commandes/{commande['id']}/paiements",
             json=donnees,
             headers=entetes(token),
         )
@@ -266,7 +266,7 @@ def test_enregistrer_paiement_met_a_jour_montant_paye(
     commande = creer_commande(client, token)
 
     response = client.post(
-        f"/commandes/{commande['id']}/paiements",
+        f"/api/v1/commandes/{commande['id']}/paiements",
         json=donnees_paiement(20000),
         headers=entetes(token),
     )
@@ -274,7 +274,7 @@ def test_enregistrer_paiement_met_a_jour_montant_paye(
     assert response.status_code == 201
 
     response_commande = client.get(
-        f"/commandes/{commande['id']}",
+        f"/api/v1/commandes/{commande['id']}",
         headers=entetes(token),
     )
 
@@ -295,7 +295,7 @@ def test_lister_paiements_commande(
     )
 
     response = client.post(
-        f"/commandes/{commande['id']}/paiements",
+        f"/api/v1/commandes/{commande['id']}/paiements",
         json={
             "montant": 10000,
             "mode": "especes",
@@ -306,7 +306,7 @@ def test_lister_paiements_commande(
     assert response.status_code == 201
 
     response = client.get(
-        f"/commandes/{commande['id']}/paiements",
+        f"/api/v1/commandes/{commande['id']}/paiements",
         headers=entetes(utilisateurs_test["tailleur"]),
     )
 
@@ -319,7 +319,7 @@ def test_lister_paiements_commande_inexistante(
     utilisateurs_test,
 ):
     response = client.get(
-        "/commandes/999999/paiements",
+        "/api/v1/commandes/999999/paiements",
         headers=entetes(utilisateurs_test["admin"]),
     )
 
@@ -330,7 +330,7 @@ def test_lister_paiements_sans_authentification(
     client,
 ):
     response = client.get(
-        "/commandes/999999/paiements",
+        "/api/v1/commandes/999999/paiements",
     )
 
     assert response.status_code == 401
@@ -345,7 +345,7 @@ def test_supprimer_paiement_admin(client, utilisateurs_test):
     )
 
     response = client.delete(
-        f"/paiements/{paiement['id']}",
+        f"/api/v1/paiements/{paiement['id']}",
         headers=entetes(token),
     )
 
@@ -362,7 +362,7 @@ def test_supprimer_paiement_interdit_accueil(
     )
 
     response = client.delete(
-        f"/paiements/{paiement['id']}",
+        f"/api/v1/paiements/{paiement['id']}",
         headers=entetes(utilisateurs_test["accueil"]),
     )
 
@@ -379,7 +379,7 @@ def test_supprimer_paiement_interdit_tailleur(
     )
 
     response = client.delete(
-        f"/paiements/{paiement['id']}",
+        f"/api/v1/paiements/{paiement['id']}",
         headers=entetes(utilisateurs_test["tailleur"]),
     )
 
@@ -391,7 +391,7 @@ def test_supprimer_paiement_inexistant(
     utilisateurs_test,
 ):
     response = client.delete(
-        "/paiements/999999",
+        "/api/v1/paiements/999999",
         headers=entetes(utilisateurs_test["admin"]),
     )
 
@@ -411,7 +411,7 @@ def test_supprimer_paiement_recalcule_montant_paye(
     )
 
     response = client.post(
-        f"/commandes/{commande['id']}/paiements",
+        f"/api/v1/commandes/{commande['id']}/paiements",
         json=donnees_paiement(10000),
         headers=entetes(token),
     )
@@ -419,16 +419,17 @@ def test_supprimer_paiement_recalcule_montant_paye(
     assert response.status_code == 201
 
     response = client.delete(
-        f"/paiements/{premier_paiement['id']}",
+        f"/api/v1/paiements/{premier_paiement['id']}",
         headers=entetes(token),
     )
 
     assert response.status_code == 204
 
     response_commande = client.get(
-        f"/commandes/{commande['id']}",
+        f"/api/v1/commandes/{commande['id']}",
         headers=entetes(token),
     )
 
     assert response_commande.status_code == 200
     assert response_commande.json()["montant_paye"] == 10000
+

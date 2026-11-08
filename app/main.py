@@ -30,14 +30,14 @@ app = FastAPI(
     version=settings.app_version,
 )
 
-app.include_router(auth_router)
-app.include_router(utilisateur.router)
-app.include_router(client.router)
-app.include_router(mesure.router)
-app.include_router(type_vetement.router)
-app.include_router(commande.router)
-app.include_router(paiement.router)
-app.include_router(livraison.router)
+app.include_router(auth_router, prefix="/api/v1")
+app.include_router(utilisateur.router, prefix="/api/v1")
+app.include_router(client.router, prefix="/api/v1")
+app.include_router(mesure.router, prefix="/api/v1")
+app.include_router(type_vetement.router, prefix="/api/v1")
+app.include_router(commande.router, prefix="/api/v1")
+app.include_router(paiement.router, prefix="/api/v1")
+app.include_router(livraison.router, prefix="/api/v1")
 app.include_router(statistique.router)
 
 @app.get("/health")

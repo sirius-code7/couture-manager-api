@@ -7,7 +7,7 @@ def entetes(token):
 
 def creer_commande(client, token):
     response_client = client.post(
-        "/clients",
+        "/api/v1/clients",
         json={
             "nom": "Diop",
             "prenom": "Mamadou",
@@ -21,7 +21,7 @@ def creer_commande(client, token):
     )
 
     response_type = client.post(
-        "/catalogue",
+        "/api/v1/catalogue",
         json={
             "nom": "Boubou statistique test",
             "description": "Boubou homme sur mesure",
@@ -35,7 +35,7 @@ def creer_commande(client, token):
     assert response_type.status_code == 201
 
     response_commande = client.post(
-        "/commandes",
+        "/api/v1/commandes",
         json={
             "client_id": response_client.json()["id"],
             "remise": 0,
@@ -58,7 +58,7 @@ def creer_commande(client, token):
 
 def creer_paiement(client, token, commande_id):
     return client.post(
-        f"/commandes/{commande_id}/paiements",
+        f"/api/v1/commandes/{commande_id}/paiements",
         json={
             "montant": 20000,
             "mode": "wave",
@@ -309,3 +309,4 @@ def test_statistiques_sans_authentification(client):
     )
 
     assert response.status_code == 401
+

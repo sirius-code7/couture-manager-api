@@ -1,4 +1,4 @@
-
+﻿
 from datetime import date, timedelta
 
 
@@ -23,13 +23,13 @@ def creer_commande(client, token, telephone="771234567"):
     donnees["telephone"] = telephone
 
     response_client = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees,
         headers=entetes(token),
     )
 
     response_prestation = client.post(
-        "/catalogue",
+        "/api/v1/catalogue",
         json={
             "nom": "Boubou livraison test",
             "description": "Boubou homme sur mesure",
@@ -43,7 +43,7 @@ def creer_commande(client, token, telephone="771234567"):
     assert response_prestation.status_code == 201
 
     response_commande = client.post(
-        "/commandes",
+        "/api/v1/commandes",
         json={
             "client_id": response_client.json()["id"],
             "remise": 0,
@@ -66,7 +66,7 @@ def creer_commande(client, token, telephone="771234567"):
 def rendre_commande_terminee(client, commande_id, token):
     for statut in ("en_coupe", "en_couture", "terminee"):
         response = client.post(
-            f"/commandes/{commande_id}/statut",
+            f"/api/v1/commandes/{commande_id}/statut",
             json={"statut": statut},
             headers=entetes(token),
         )
@@ -84,7 +84,7 @@ def planifier_livraison(client, commande_id, token, **modifications):
     donnees.update(modifications)
 
     return client.put(
-        f"/commandes/{commande_id}/livraison",
+        f"/api/v1/commandes/{commande_id}/livraison",
         json=donnees,
         headers=entetes(token),
     )
@@ -140,7 +140,7 @@ def test_planifier_livraison_sans_authentification(client, utilisateurs_test):
     commande = creer_commande(client, utilisateurs_test["admin"])
 
     response = client.put(
-        f"/commandes/{commande['id']}/livraison",
+        f"/api/v1/commandes/{commande['id']}/livraison",
         json={
             "mode": "retrait_atelier",
             "date_prevue": str(date.today()),
@@ -213,12 +213,12 @@ def test_replanifier_livraison_existante(client, utilisateurs_test):
         commande["id"],
         token,
         mode="domicile",
-        adresse="Médina, Dakar",
+        adresse="MÃ©dina, Dakar",
     )
 
     assert seconde.status_code == 200
     assert seconde.json()["mode"] == "domicile"
-    assert seconde.json()["adresse"] == "Médina, Dakar"
+    assert seconde.json()["adresse"] == "MÃ©dina, Dakar"
 
 
 def test_planifier_livraison_commande_inexistante(
@@ -242,7 +242,7 @@ def test_planifier_livraison_commande_annulee(
     commande = creer_commande(client, token)
 
     annulation = client.post(
-        f"/commandes/{commande['id']}/statut",
+        f"/api/v1/commandes/{commande['id']}/statut",
         json={"statut": "annulee"},
         headers=entetes(token),
     )
@@ -261,7 +261,7 @@ def test_obtenir_livraison_existante(client, utilisateurs_test):
     assert planification.status_code == 200
 
     response = client.get(
-        f"/commandes/{commande['id']}/livraison",
+        f"/api/v1/commandes/{commande['id']}/livraison",
         headers=entetes(token),
     )
 
@@ -274,7 +274,7 @@ def test_obtenir_livraison_absente(client, utilisateurs_test):
     commande = creer_commande(client, token)
 
     response = client.get(
-        f"/commandes/{commande['id']}/livraison",
+        f"/api/v1/commandes/{commande['id']}/livraison",
         headers=entetes(token),
     )
 
@@ -286,7 +286,7 @@ def test_obtenir_livraison_commande_inexistante(
     utilisateurs_test,
 ):
     response = client.get(
-        "/commandes/999999/livraison",
+        "/api/v1/commandes/999999/livraison",
         headers=entetes(utilisateurs_test["admin"]),
     )
 
@@ -301,7 +301,7 @@ def test_confirmer_livraison_commande_non_terminee(
     commande = creer_commande(client, token)
 
     response = client.post(
-        f"/commandes/{commande['id']}/livraison/confirmer",
+        f"/api/v1/commandes/{commande['id']}/livraison/confirmer",
         json={},
         headers=entetes(token),
     )
@@ -318,7 +318,7 @@ def test_confirmer_livraison_solde_impaye_interdit(
     rendre_commande_terminee(client, commande["id"], token)
 
     response = client.post(
-        f"/commandes/{commande['id']}/livraison/confirmer",
+        f"/api/v1/commandes/{commande['id']}/livraison/confirmer",
         json={},
         headers=entetes(token),
     )
@@ -335,10 +335,10 @@ def test_confirmer_livraison_solde_impaye_autorise(
     rendre_commande_terminee(client, commande["id"], token)
 
     response = client.post(
-        f"/commandes/{commande['id']}/livraison/confirmer",
+        f"/api/v1/commandes/{commande['id']}/livraison/confirmer",
         json={
             "autoriser_solde_impaye": True,
-            "commentaire": "Livraison autorisée exceptionnellement.",
+            "commentaire": "Livraison autorisÃ©e exceptionnellement.",
         },
         headers=entetes(token),
     )
@@ -355,7 +355,7 @@ def test_confirmer_livraison_commande_entierement_payee(
     commande = creer_commande(client, token)
 
     paiement = client.post(
-        f"/commandes/{commande['id']}/paiements",
+        f"/api/v1/commandes/{commande['id']}/paiements",
         json={
             "montant": commande["montant_total"],
             "mode": "wave",
@@ -369,7 +369,7 @@ def test_confirmer_livraison_commande_entierement_payee(
     rendre_commande_terminee(client, commande["id"], token)
 
     response = client.post(
-        f"/commandes/{commande['id']}/livraison/confirmer",
+        f"/api/v1/commandes/{commande['id']}/livraison/confirmer",
         json={},
         headers=entetes(token),
     )
@@ -387,7 +387,7 @@ def test_confirmer_livraison_interdit_tailleur(
     rendre_commande_terminee(client, commande["id"], token)
 
     response = client.post(
-        f"/commandes/{commande['id']}/livraison/confirmer",
+        f"/api/v1/commandes/{commande['id']}/livraison/confirmer",
         json={"autoriser_solde_impaye": True},
         headers=entetes(utilisateurs_test["tailleur"]),
     )
@@ -404,14 +404,14 @@ def test_confirmer_livraison_deja_livree(
     rendre_commande_terminee(client, commande["id"], token)
 
     premiere = client.post(
-        f"/commandes/{commande['id']}/livraison/confirmer",
+        f"/api/v1/commandes/{commande['id']}/livraison/confirmer",
         json={"autoriser_solde_impaye": True},
         headers=entetes(token),
     )
     assert premiere.status_code == 200
 
     seconde = client.post(
-        f"/commandes/{commande['id']}/livraison/confirmer",
+        f"/api/v1/commandes/{commande['id']}/livraison/confirmer",
         json={"autoriser_solde_impaye": True},
         headers=entetes(token),
     )
@@ -427,7 +427,7 @@ def test_lister_livraisons(client, utilisateurs_test):
     assert planification.status_code == 200
 
     response = client.get(
-        "/livraisons",
+        "/api/v1/livraisons",
         headers=entetes(token),
     )
 
@@ -445,7 +445,7 @@ def test_lister_livraisons_filtre_statut(client, utilisateurs_test):
     planifier_livraison(client, commande["id"], token)
 
     response = client.get(
-        "/livraisons",
+        "/api/v1/livraisons",
         params={"statut": "planifiee"},
         headers=entetes(token),
     )
@@ -458,7 +458,7 @@ def test_lister_livraisons_filtre_statut(client, utilisateurs_test):
 
 
 def test_lister_livraisons_sans_authentification(client):
-    response = client.get("/livraisons")
+    response = client.get("/api/v1/livraisons")
 
     assert response.status_code == 401
 
@@ -468,9 +468,10 @@ def test_lister_livraisons_filtre_statut_invalide(
     utilisateurs_test,
 ):
     response = client.get(
-        "/livraisons",
+        "/api/v1/livraisons",
         params={"statut": "en_attente"},
         headers=entetes(utilisateurs_test["admin"]),
     )
 
     assert response.status_code == 422
+

@@ -16,7 +16,7 @@ def entetes(token):
 
 def test_creation_client(client, utilisateurs_test):
     response = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees_client("77 123-45-67"),
         headers=entetes(utilisateurs_test["accueil"]),
     )
@@ -27,7 +27,7 @@ def test_creation_client(client, utilisateurs_test):
 
 
 def test_creation_client_sans_authentification(client):
-    response = client.post("/clients", json=donnees_client())
+    response = client.post("/api/v1/clients", json=donnees_client())
 
     assert response.status_code == 401
 
@@ -39,13 +39,13 @@ def test_creation_client_telephone_deja_utilise(
     headers = entetes(utilisateurs_test["accueil"])
 
     premiere_reponse = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees_client(),
         headers=headers,
     )
 
     deuxieme_reponse = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees_client("77-123-45-67"),
         headers=headers,
     )
@@ -59,7 +59,7 @@ def test_creation_client_telephone_invalide(
     utilisateurs_test,
 ):
     response = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees_client("77ABC4567"),
         headers=entetes(utilisateurs_test["accueil"]),
     )
@@ -71,7 +71,7 @@ def test_consulter_client(client, utilisateurs_test):
     headers = entetes(utilisateurs_test["accueil"])
 
     creation = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees_client(),
         headers=headers,
     )
@@ -79,7 +79,7 @@ def test_consulter_client(client, utilisateurs_test):
     client_id = creation.json()["id"]
 
     response = client.get(
-        f"/clients/{client_id}",
+        f"/api/v1/clients/{client_id}",
         headers=headers,
     )
 
@@ -90,7 +90,7 @@ def test_consulter_client(client, utilisateurs_test):
 
 def test_consulter_client_inexistant(client, utilisateurs_test):
     response = client.get(
-        "/clients/999999",
+        "/api/v1/clients/999999",
         headers=entetes(utilisateurs_test["accueil"]),
     )
 
@@ -102,14 +102,14 @@ def test_lister_clients_avec_pagination(client, utilisateurs_test):
 
     for telephone in ("771111111", "772222222", "773333333"):
         response = client.post(
-            "/clients",
+            "/api/v1/clients",
             json=donnees_client(telephone),
             headers=headers,
         )
         assert response.status_code == 201
 
     response = client.get(
-        "/clients?limit=2&offset=1",
+        "/api/v1/clients?limit=2&offset=1",
         headers=headers,
     )
 
@@ -124,7 +124,7 @@ def test_modifier_client(client, utilisateurs_test):
     headers = entetes(utilisateurs_test["accueil"])
 
     creation = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees_client(),
         headers=headers,
     )
@@ -132,7 +132,7 @@ def test_modifier_client(client, utilisateurs_test):
     client_id = creation.json()["id"]
 
     response = client.patch(
-        f"/clients/{client_id}",
+        f"/api/v1/clients/{client_id}",
         json={
             "prenom": "Abdou",
             "telephone": "78 123-45-67",
@@ -152,19 +152,19 @@ def test_modifier_client_avec_telephone_deja_utilise(
     headers = entetes(utilisateurs_test["accueil"])
 
     premier = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees_client("771111111"),
         headers=headers,
     )
 
     deuxieme = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees_client("772222222"),
         headers=headers,
     )
 
     response = client.patch(
-        f"/clients/{deuxieme.json()['id']}",
+        f"/api/v1/clients/{deuxieme.json()['id']}",
         json={"telephone": "771111111"},
         headers=headers,
     )
@@ -176,7 +176,7 @@ def test_modifier_client_avec_telephone_deja_utilise(
 
 def test_modifier_client_inexistant(client, utilisateurs_test):
     response = client.patch(
-        "/clients/999999",
+        "/api/v1/clients/999999",
         json={"prenom": "Abdou"},
         headers=entetes(utilisateurs_test["accueil"]),
     )
@@ -191,13 +191,13 @@ def test_supprimer_client_interdit_accueil(
     headers_accueil = entetes(utilisateurs_test["accueil"])
 
     creation = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees_client(),
         headers=headers_accueil,
     )
 
     response = client.delete(
-        f"/clients/{creation.json()['id']}",
+        f"/api/v1/clients/{creation.json()['id']}",
         headers=headers_accueil,
     )
 
@@ -209,7 +209,7 @@ def test_supprimer_client_admin(client, utilisateurs_test):
     headers = entetes(utilisateurs_test["admin"])
 
     creation = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees_client(),
         headers=headers,
     )
@@ -217,12 +217,12 @@ def test_supprimer_client_admin(client, utilisateurs_test):
     client_id = creation.json()["id"]
 
     suppression = client.delete(
-        f"/clients/{client_id}",
+        f"/api/v1/clients/{client_id}",
         headers=headers,
     )
 
     consultation = client.get(
-        f"/clients/{client_id}",
+        f"/api/v1/clients/{client_id}",
         headers=headers,
     )
 
@@ -232,8 +232,9 @@ def test_supprimer_client_admin(client, utilisateurs_test):
 
 def test_supprimer_client_inexistant(client, utilisateurs_test):
     response = client.delete(
-        "/clients/999999",
+        "/api/v1/clients/999999",
         headers=entetes(utilisateurs_test["admin"]),
     )
 
     assert response.status_code == 404
+

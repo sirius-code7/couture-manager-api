@@ -36,13 +36,13 @@ def creer_ressources(
     donnees["telephone"] = telephone
 
     reponse_client = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees,
         headers=entetes(token),
     )
 
     reponse_prestation = client.post(
-        "/catalogue",
+        "/api/v1/catalogue",
         json=donnees_prestation(nom_prestation),
         headers=entetes(token),
     )
@@ -83,7 +83,7 @@ def creer_commande(
     )
 
     return client.post(
-        "/commandes",
+        "/api/v1/commandes",
         json=donnees_commande(client_id, prestation_id),
         headers=entetes(token),
     )
@@ -127,7 +127,7 @@ def test_creation_commande_interdite_tailleur(
 
 def test_creation_commande_sans_authentification(client):
     response = client.post(
-        "/commandes",
+        "/api/v1/commandes",
         json={},
     )
 
@@ -145,7 +145,7 @@ def test_creation_commande_sans_ligne(
     donnees["lignes"] = []
 
     response = client.post(
-        "/commandes",
+        "/api/v1/commandes",
         json=donnees,
         headers=entetes(token),
     )
@@ -163,7 +163,7 @@ def test_creation_commande_client_inexistant(
     donnees = donnees_commande(999999, prestation_id)
 
     response = client.post(
-        "/commandes",
+        "/api/v1/commandes",
         json=donnees,
         headers=entetes(token),
     )
@@ -182,7 +182,7 @@ def test_creation_commande_remise_superieure_au_total(
     donnees["remise"] = 100000
 
     response = client.post(
-        "/commandes",
+        "/api/v1/commandes",
         json=donnees,
         headers=entetes(token),
     )
@@ -198,7 +198,7 @@ def test_lister_commandes_utilisateur_authentifie(
     creation = creer_commande(client, token)
 
     response = client.get(
-        "/commandes",
+        "/api/v1/commandes",
         headers=entetes(token),
     )
 
@@ -209,7 +209,7 @@ def test_lister_commandes_utilisateur_authentifie(
 
 
 def test_lister_commandes_sans_authentification(client):
-    response = client.get("/commandes")
+    response = client.get("/api/v1/commandes")
 
     assert response.status_code == 401
 
@@ -224,13 +224,13 @@ def test_filtrer_commandes_par_statut(
     commande_id = creation.json()["id"]
 
     changement = client.post(
-        f"/commandes/{commande_id}/statut",
+        f"/api/v1/commandes/{commande_id}/statut",
         json={"statut": "en_coupe"},
         headers=entetes(token),
     )
 
     response = client.get(
-        "/commandes?statut=en_coupe",
+        "/api/v1/commandes?statut=en_coupe",
         headers=entetes(token),
     )
 
@@ -248,7 +248,7 @@ def test_consulter_commande(client, utilisateurs_test):
     )
 
     response = client.get(
-        f"/commandes/{creation.json()['id']}",
+        f"/api/v1/commandes/{creation.json()['id']}",
         headers=entetes(token),
     )
 
@@ -261,7 +261,7 @@ def test_consulter_commande_inexistante(
     utilisateurs_test,
 ):
     response = client.get(
-        "/commandes/999999",
+        "/api/v1/commandes/999999",
         headers=entetes(utilisateurs_test["admin"]),
     )
 
@@ -273,7 +273,7 @@ def test_modifier_commande_admin(client, utilisateurs_test):
     creation = creer_commande(client, token)
 
     response = client.patch(
-        f"/commandes/{creation.json()['id']}",
+        f"/api/v1/commandes/{creation.json()['id']}",
         json={"remise": 5000, "notes": "Remise accordee"},
         headers=entetes(token),
     )
@@ -293,7 +293,7 @@ def test_modifier_commande_interdit_tailleur(
     )
 
     response = client.patch(
-        f"/commandes/{creation.json()['id']}",
+        f"/api/v1/commandes/{creation.json()['id']}",
         json={"notes": "Modification"},
         headers=entetes(utilisateurs_test["tailleur"]),
     )
@@ -306,7 +306,7 @@ def test_modifier_commande_inexistante(
     utilisateurs_test,
 ):
     response = client.patch(
-        "/commandes/999999",
+        "/api/v1/commandes/999999",
         json={"notes": "Modification"},
         headers=entetes(utilisateurs_test["admin"]),
     )
@@ -322,7 +322,7 @@ def test_changer_statut_commande(client, utilisateurs_test):
     )
 
     response = client.post(
-        f"/commandes/{creation.json()['id']}/statut",
+        f"/api/v1/commandes/{creation.json()['id']}/statut",
         json={"statut": "en_coupe"},
         headers=entetes(token),
     )
@@ -339,7 +339,7 @@ def test_transition_statut_invalide(
     creation = creer_commande(client, token)
 
     response = client.post(
-        f"/commandes/{creation.json()['id']}/statut",
+        f"/api/v1/commandes/{creation.json()['id']}/statut",
         json={"statut": "terminee"},
         headers=entetes(token),
     )
@@ -357,7 +357,7 @@ def test_tailleur_ne_peut_pas_annuler_commande(
     )
 
     response = client.post(
-        f"/commandes/{creation.json()['id']}/statut",
+        f"/api/v1/commandes/{creation.json()['id']}/statut",
         json={"statut": "annulee"},
         headers=entetes(utilisateurs_test["tailleur"]),
     )
@@ -371,13 +371,13 @@ def test_historique_commande(client, utilisateurs_test):
     commande_id = creation.json()["id"]
 
     client.post(
-        f"/commandes/{commande_id}/statut",
+        f"/api/v1/commandes/{commande_id}/statut",
         json={"statut": "en_coupe"},
         headers=entetes(token),
     )
 
     response = client.get(
-        f"/commandes/{commande_id}/historique",
+        f"/api/v1/commandes/{commande_id}/historique",
         headers=entetes(token),
     )
 
@@ -392,7 +392,7 @@ def test_historique_commande_inexistante(
     utilisateurs_test,
 ):
     response = client.get(
-        "/commandes/999999/historique",
+        "/api/v1/commandes/999999/historique",
         headers=entetes(utilisateurs_test["admin"]),
     )
 
@@ -412,7 +412,7 @@ def test_ajouter_ligne_commande(client, utilisateurs_test):
     )
 
     response = client.post(
-        f"/commandes/{commande_id}/lignes",
+        f"/api/v1/commandes/{commande_id}/lignes",
         json={
             "type_vetement_id": prestation_id,
             "description": "Chemise blanche",
@@ -433,7 +433,7 @@ def test_ajouter_ligne_commande_inexistante(
     _, prestation_id = creer_ressources(client, token)
 
     response = client.post(
-        "/commandes/999999/lignes",
+        "/api/v1/commandes/999999/lignes",
         json={"type_vetement_id": prestation_id, "quantite": 1},
         headers=entetes(token),
     )
@@ -449,7 +449,7 @@ def test_annuler_commande_sans_paiement(
     creation = creer_commande(client, token)
 
     response = client.post(
-        f"/commandes/{creation.json()['id']}/statut",
+        f"/api/v1/commandes/{creation.json()['id']}/statut",
         json={"statut": "annulee"},
         headers=entetes(token),
     )
@@ -483,7 +483,7 @@ def test_ajouter_ligne_donnees_invalides(
     ligne.update(donnees)
 
     response = client.post(
-        f"/commandes/{commande_id}/lignes",
+        f"/api/v1/commandes/{commande_id}/lignes",
         json=ligne,
         headers=entetes(token),
     )
@@ -496,7 +496,7 @@ def test_modifier_commande_remise_nulle(client, utilisateurs_test):
     commande_id = creation.json()["id"]
 
     response = client.patch(
-        f"/commandes/{commande_id}",
+        f"/api/v1/commandes/{commande_id}",
         json={"remise": None},
         headers=entetes(token),
     )
@@ -520,10 +520,11 @@ def test_annuler_commande_payee_sans_commentaire_remboursement(
     db.flush()
 
     response = client.post(
-        f"/commandes/{commande_id}/statut",
+        f"/api/v1/commandes/{commande_id}/statut",
         json={"statut": "annulee"},
         headers=entetes(token),
     )
 
     assert response.status_code == 422
+
 

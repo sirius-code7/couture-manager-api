@@ -16,7 +16,7 @@ def entetes(token):
 
 def creer_prestation(client, token, nom="Boubou test"):
     return client.post(
-        "/catalogue",
+        "/api/v1/catalogue",
         json=donnees_prestation(nom),
         headers=entetes(token),
     )
@@ -50,7 +50,7 @@ def test_creation_prestation_interdite_aux_autres_roles(
 
 def test_creation_prestation_sans_authentification(client):
     response = client.post(
-        "/catalogue",
+        "/api/v1/catalogue",
         json=donnees_prestation(),
     )
 
@@ -88,7 +88,7 @@ def test_creation_prestation_donnees_invalides(
     donnees.update(modifications)
 
     response = client.post(
-        "/catalogue",
+        "/api/v1/catalogue",
         json=donnees,
         headers=entetes(utilisateurs_test["admin"]),
     )
@@ -101,7 +101,7 @@ def test_lister_catalogue_utilisateur_authentifie(
     utilisateurs_test,
 ):
     response = client.get(
-        "/catalogue",
+        "/api/v1/catalogue",
         headers=entetes(utilisateurs_test["accueil"]),
     )
 
@@ -110,7 +110,7 @@ def test_lister_catalogue_utilisateur_authentifie(
 
 
 def test_lister_catalogue_sans_authentification(client):
-    response = client.get("/catalogue")
+    response = client.get("/api/v1/catalogue")
 
     assert response.status_code == 401
 
@@ -130,18 +130,18 @@ def test_catalogue_filtre_les_prestations_inactives(
     prestation_id = creation.json()["id"]
 
     desactivation = client.patch(
-        f"/catalogue/{prestation_id}",
+        f"/api/v1/catalogue/{prestation_id}",
         json={"actif": False},
         headers=entetes(token),
     )
 
     actifs = client.get(
-        "/catalogue",
+        "/api/v1/catalogue",
         headers=entetes(token),
     )
 
     tous = client.get(
-        "/catalogue?actifs_seulement=false",
+        "/api/v1/catalogue?actifs_seulement=false",
         headers=entetes(token),
     )
 
@@ -162,7 +162,7 @@ def test_consulter_prestation(client, utilisateurs_test):
     )
 
     response = client.get(
-        f"/catalogue/{creation.json()['id']}",
+        f"/api/v1/catalogue/{creation.json()['id']}",
         headers=entetes(token),
     )
 
@@ -175,7 +175,7 @@ def test_consulter_prestation_inexistante(
     utilisateurs_test,
 ):
     response = client.get(
-        "/catalogue/999999",
+        "/api/v1/catalogue/999999",
         headers=entetes(utilisateurs_test["admin"]),
     )
 
@@ -189,7 +189,7 @@ def test_modifier_prestation_admin(client, utilisateurs_test):
     prestation_id = creation.json()["id"]
 
     response = client.patch(
-        f"/catalogue/{prestation_id}",
+        f"/api/v1/catalogue/{prestation_id}",
         json={
             "prix_base": 40000,
             "delai_jours": 12,
@@ -212,7 +212,7 @@ def test_modifier_prestation_interdit_accueil(
     )
 
     response = client.patch(
-        f"/catalogue/{creation.json()['id']}",
+        f"/api/v1/catalogue/{creation.json()['id']}",
         json={"prix_base": 40000},
         headers=entetes(utilisateurs_test["accueil"]),
     )
@@ -230,7 +230,7 @@ def test_modifier_prestation_nom_deja_utilise(
     deuxieme = creer_prestation(client, token, "Boubou test B")
 
     response = client.patch(
-        f"/catalogue/{deuxieme.json()['id']}",
+        f"/api/v1/catalogue/{deuxieme.json()['id']}",
         json={"nom": "Boubou test A"},
         headers=entetes(token),
     )
@@ -245,9 +245,10 @@ def test_modifier_prestation_inexistante(
     utilisateurs_test,
 ):
     response = client.patch(
-        "/catalogue/999999",
+        "/api/v1/catalogue/999999",
         json={"prix_base": 40000},
         headers=entetes(utilisateurs_test["admin"]),
     )
 
     assert response.status_code == 404
+

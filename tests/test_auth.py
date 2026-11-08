@@ -1,7 +1,7 @@
 ﻿
 def test_connexion_reussie(client, utilisateurs_test):
     response = client.post(
-        "/auth/login",
+        "/api/v1/auth/login",
         data={
             "username": "admin@example.com",
             "password": "TestPassword123!",
@@ -15,7 +15,7 @@ def test_connexion_reussie(client, utilisateurs_test):
 
 def test_connexion_identifiants_incorrects(client):
     response = client.post(
-        "/auth/login",
+        "/api/v1/auth/login",
         data={
             "username": "admin@example.com",
             "password": "mauvais_mot_de_passe",
@@ -27,7 +27,7 @@ def test_connexion_identifiants_incorrects(client):
 
 def test_connexion_compte_inactif(client):
     response = client.post(
-        "/auth/login",
+        "/api/v1/auth/login",
         data={
             "username": "inactif@example.com",
             "password": "TestPassword123!",
@@ -38,14 +38,14 @@ def test_connexion_compte_inactif(client):
 
 
 def test_profil_sans_token(client):
-    response = client.get("/auth/me")
+    response = client.get("/api/v1/auth/me")
 
     assert response.status_code == 401
 
 
 def test_profil_avec_token(client, utilisateurs_test):
     response = client.get(
-        "/auth/me",
+        "/api/v1/auth/me",
         headers={
             "Authorization": f"Bearer {utilisateurs_test['admin']}"
         },
@@ -57,7 +57,7 @@ def test_profil_avec_token(client, utilisateurs_test):
 
 def test_profil_avec_token_invalide(client):
     response = client.get(
-        "/auth/me",
+        "/api/v1/auth/me",
         headers={"Authorization": "Bearer faux_token"},
     )
 
@@ -69,7 +69,7 @@ def test_compte_inactif_refuse_meme_avec_token(
     utilisateurs_test,
 ):
     response = client.get(
-        "/auth/me",
+        "/api/v1/auth/me",
         headers={
             "Authorization": f"Bearer {utilisateurs_test['inactif']}"
         },
@@ -104,4 +104,5 @@ def test_statistiques_interdites_accueil(
     )
 
     assert response.status_code == 403
+
 

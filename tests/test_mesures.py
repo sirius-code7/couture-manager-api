@@ -31,7 +31,7 @@ def donnees_mesure(**modifications):
 
 def creer_client(client, token):
     response = client.post(
-        "/clients",
+        "/api/v1/clients",
         json=donnees_client(),
         headers=entetes(token),
     )
@@ -44,7 +44,7 @@ def creer_mesure(client, client_id, token, donnees=None):
         donnees = donnees_mesure()
 
     response = client.post(
-        f"/clients/{client_id}/mesures",
+        f"/api/v1/clients/{client_id}/mesures",
         json=donnees,
         headers=entetes(token),
     )
@@ -78,7 +78,7 @@ def test_creation_mesure_interdite_aux_autres_roles(
 
 def test_creation_mesure_sans_authentification(client):
     response = client.post(
-        "/clients/1/mesures",
+        "/api/v1/clients/1/mesures",
         json=donnees_mesure(),
     )
 
@@ -139,7 +139,7 @@ def test_lister_mesures_client(client, utilisateurs_test):
 
     creation = creer_mesure(client, client_id, token)
     response = client.get(
-        f"/clients/{client_id}/mesures",
+        f"/api/v1/clients/{client_id}/mesures",
         headers=entetes(token),
     )
 
@@ -150,7 +150,7 @@ def test_lister_mesures_client(client, utilisateurs_test):
 
 def test_lister_mesures_client_inexistant(client, utilisateurs_test):
     response = client.get(
-        "/clients/999999/mesures",
+        "/api/v1/clients/999999/mesures",
         headers=entetes(utilisateurs_test["accueil"]),
     )
 
@@ -158,7 +158,7 @@ def test_lister_mesures_client_inexistant(client, utilisateurs_test):
 
 
 def test_lister_mesures_sans_authentification(client):
-    response = client.get("/clients/1/mesures")
+    response = client.get("/api/v1/clients/1/mesures")
 
     assert response.status_code == 401
 
@@ -186,7 +186,7 @@ def test_consulter_derniere_mesure(client, utilisateurs_test):
     )
 
     response = client.get(
-        f"/clients/{client_id}/mesures/derniere",
+        f"/api/v1/clients/{client_id}/mesures/derniere",
         headers=entetes(token),
     )
 
@@ -198,7 +198,7 @@ def test_consulter_derniere_mesure(client, utilisateurs_test):
 
 def test_derniere_mesure_client_inexistant(client, utilisateurs_test):
     response = client.get(
-        "/clients/999999/mesures/derniere",
+        "/api/v1/clients/999999/mesures/derniere",
         headers=entetes(utilisateurs_test["accueil"]),
     )
 
@@ -210,7 +210,7 @@ def test_derniere_mesure_sans_mesure(client, utilisateurs_test):
     client_id = creer_client(client, token)
 
     response = client.get(
-        f"/clients/{client_id}/mesures/derniere",
+        f"/api/v1/clients/{client_id}/mesures/derniere",
         headers=entetes(token),
     )
 
@@ -224,7 +224,7 @@ def test_consulter_mesure(client, utilisateurs_test):
 
     mesure_id = creation.json()["id"]
     response = client.get(
-        f"/mesures/{mesure_id}",
+        f"/api/v1/mesures/{mesure_id}",
         headers=entetes(token),
     )
 
@@ -234,7 +234,7 @@ def test_consulter_mesure(client, utilisateurs_test):
 
 def test_consulter_mesure_inexistante(client, utilisateurs_test):
     response = client.get(
-        "/mesures/999999",
+        "/api/v1/mesures/999999",
         headers=entetes(utilisateurs_test["accueil"]),
     )
 
@@ -248,7 +248,7 @@ def test_modifier_mesure_tailleur(client, utilisateurs_test):
 
     mesure_id = creation.json()["id"]
     response = client.patch(
-        f"/mesures/{mesure_id}",
+        f"/api/v1/mesures/{mesure_id}",
         json={"taille_cm": 180, "notes": "Mesure actualisee"},
         headers=entetes(token),
     )
@@ -264,7 +264,7 @@ def test_modifier_mesure_interdit_accueil(client, utilisateurs_test):
     creation = creer_mesure(client, client_id, token_tailleur)
 
     response = client.patch(
-        f"/mesures/{creation.json()['id']}",
+        f"/api/v1/mesures/{creation.json()['id']}",
         json={"taille_cm": 180},
         headers=entetes(utilisateurs_test["accueil"]),
     )
@@ -278,7 +278,7 @@ def test_modifier_mesure_valeur_invalide(client, utilisateurs_test):
     creation = creer_mesure(client, client_id, token)
 
     response = client.patch(
-        f"/mesures/{creation.json()['id']}",
+        f"/api/v1/mesures/{creation.json()['id']}",
         json={"taille_cm": 0},
         headers=entetes(token),
     )
@@ -292,7 +292,7 @@ def test_modifier_mesure_sans_mesure_restante(client, utilisateurs_test):
     creation = creer_mesure(client, client_id, token)
 
     response = client.patch(
-        f"/mesures/{creation.json()['id']}",
+        f"/api/v1/mesures/{creation.json()['id']}",
         json={"taille_cm": None},
         headers=entetes(token),
     )
@@ -306,7 +306,7 @@ def test_modifier_mesure_date_vide(client, utilisateurs_test):
     creation = creer_mesure(client, client_id, token)
 
     response = client.patch(
-        f"/mesures/{creation.json()['id']}",
+        f"/api/v1/mesures/{creation.json()['id']}",
         json={"date_prise": None},
         headers=entetes(token),
     )
@@ -316,7 +316,7 @@ def test_modifier_mesure_date_vide(client, utilisateurs_test):
 
 def test_modifier_mesure_inexistante(client, utilisateurs_test):
     response = client.patch(
-        "/mesures/999999",
+        "/api/v1/mesures/999999",
         json={"taille_cm": 180},
         headers=entetes(utilisateurs_test["tailleur"]),
     )
@@ -331,11 +331,11 @@ def test_supprimer_mesure_tailleur(client, utilisateurs_test):
 
     mesure_id = creation.json()["id"]
     suppression = client.delete(
-        f"/mesures/{mesure_id}",
+        f"/api/v1/mesures/{mesure_id}",
         headers=entetes(token),
     )
     consultation = client.get(
-        f"/mesures/{mesure_id}",
+        f"/api/v1/mesures/{mesure_id}",
         headers=entetes(token),
     )
 
@@ -349,7 +349,7 @@ def test_supprimer_mesure_interdit_accueil(client, utilisateurs_test):
     creation = creer_mesure(client, client_id, token)
 
     response = client.delete(
-        f"/mesures/{creation.json()['id']}",
+        f"/api/v1/mesures/{creation.json()['id']}",
         headers=entetes(utilisateurs_test["accueil"]),
     )
 
@@ -358,7 +358,7 @@ def test_supprimer_mesure_interdit_accueil(client, utilisateurs_test):
 
 def test_supprimer_mesure_inexistante(client, utilisateurs_test):
     response = client.delete(
-        "/mesures/999999",
+        "/api/v1/mesures/999999",
         headers=entetes(utilisateurs_test["tailleur"]),
     )
 
@@ -392,9 +392,10 @@ def test_supprimer_mesure_liee_a_commande(
     db.commit()
 
     response = client.delete(
-        f"/mesures/{mesure_id}",
+        f"/api/v1/mesures/{mesure_id}",
         headers=entetes(token),
     )
 
     assert response.status_code == 409
+
 
