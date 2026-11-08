@@ -125,6 +125,11 @@ class Commande(Base):
     passive_deletes="all",
 )
 
+    livraison: Mapped["Livraison | None"] = relationship(
+        back_populates="commande",
+        uselist=False,
+    )
+
 
 class LigneCommande(Base):
     __tablename__ = "lignes_commande"
